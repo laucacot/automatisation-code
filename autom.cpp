@@ -654,7 +654,7 @@ struct jacobian
   void operator()(const state_type &n, matrix_type &jacobi,
                   const value_type &t, state_type &dfdt ) const
   {
-    jacobi( 0 , 0 )=k1(Te)*n_Ar +k3(Te)*n[1]  -k8(Te)*n[5] -k9(Te)*n[5] +k10(Te)*n[5]
+    /*jacobi( 0 , 0 )=k1(Te)*n_Ar +k3(Te)*n[1]  -k8(Te)*n[5] -k9(Te)*n[5] +k10(Te)*n[5]
     	-k11(Te)*n[6] +k12(Te)*n[6] +k13(Te)*n[2] +k14(Te)*n[3] -k15(Te)*n[8] +k17(Te)*n[9]
     	-k43(Te)*n[6]-k44(Te)*n[18] +k45(Te)*n[17];
     jacobi( 0 , 1 )= +k3(Te)*n[0] +2.*k4(Te)*n[1] ;
@@ -1196,21 +1196,23 @@ struct jacobian
     jacobi( 22 , 19 ) =0.0;
     jacobi( 22 , 20 ) =0.0;
     jacobi( 22 , 21 ) =0.0;
-    jacobi( 22 , 22 ) =-k51(Tg)*n[16];
+    jacobi( 22 , 22 ) =-k51(Tg)*n[16];*/
 
 
 
+for (int j=0;j<23;j++)
 
-/*for (int k=0;k<23;k++)
 {
-jacobi(p1,k)=0.0;
-jacobi(p2,k)=0.0;
-jacobi(g1,k)=0.0;
-jacobi(g2,k)=0.0;
-jacobi(g3,k)=0.0;
-jacobi(g4,k)=0.0;
+for (int k=0;k<23;k++)
+{
+jacobi(j,k)=0.0;
+jacobi(j,k)=0.0;
+jacobi(j,k)=0.0;
+jacobi(j,k)=0.0;
+jacobi(j,k)=0.0;
+jacobi(j,k)=0.0;
 }
-
+}
 
 for (int j=0;j<jmax;j++)
 {
@@ -1224,22 +1226,24 @@ for (int j=0;j<jmax;j++)
  Tp=(p2==0 or g3==0)?Te:Tg;
 
  Kt[j]={Tab[6][j]*pow(Tp,Tab[7][j])*exp(-Tab[8][j]/Tp)};
-
+//cerr<<j<<endl;
 for (int k=0;k<23;k++)
 {
 
-if (p1==200 and p2==k) {Tj=n_Ar*Kt[j];}
-else if (p2==k) {Tj=n[p1]*Kt[j];}
-else if (p2==100 and p1==k) {Tj=Kt[j];}
-else if (p1==k) {Tj=n[p2]*Kt[j];}
+if (p1==200 and p2==k and p1!=p2) {Tj=n_Ar*Kt[j];}
+else if (p1!=200 and p2==k and p1!=p2) {Tj=n[p1]*Kt[j];}
+else if (p2==100 and p1==k and p1!=p2) {Tj=Kt[j];}
+else if (p1==k and p1!=p2) {Tj=n[p2]*Kt[j];}
+else if (p1==p2) {Tj=2*n[p1]*Kt[j];}
+
+if (p1!=200) {jacobi(p1,k)=jacobi(p1,k)-Tj;}
+if (p2!=100) {jacobi(p2,k)=jacobi(p2,k)-Tj;}
+if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
+if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
+if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
+if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
 
 
-jacobi(p1,k)=jacobi(p1,k)-Tj;
-jacobi(p2,k)=jacobi(p2,k)-Tj;
-jacobi(g1,k)=jacobi(g1,k)-Tj;
-jacobi(g2,k)=jacobi(g2,k)-Tj;
-jacobi(g3,k)=jacobi(g3,k)-Tj;
-jacobi(g4,k)=jacobi(g4,k)-Tj;
 
 }
 }
@@ -1265,7 +1269,7 @@ jacobi(g4,k)=jacobi(g4,k)-Tj;
     dfdt( 19 ) = 0.0;
     dfdt( 20 ) = 0.0;
     dfdt( 21 ) = 0.0;
-    dfdt( 22 ) = 0.0;*/
+    dfdt( 22 ) = 0.0;
   }
 //stop modif
   value_type Te;
