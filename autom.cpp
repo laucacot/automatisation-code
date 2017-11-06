@@ -1200,17 +1200,17 @@ struct jacobian
 
 
 
-for (int j=0;j<23;j++)
+for (int h=0;h<23;h++)
 
 {
-for (int k=0;k<23;k++)
+for (int p=0;p<23;p++)
 {
-jacobi(j,k)=0.0;
-jacobi(j,k)=0.0;
-jacobi(j,k)=0.0;
-jacobi(j,k)=0.0;
-jacobi(j,k)=0.0;
-jacobi(j,k)=0.0;
+jacobi(h,p)=0.0;
+jacobi(h,p)=0.0;
+jacobi(h,p)=0.0;
+jacobi(h,p)=0.0;
+jacobi(h,p)=0.0;
+jacobi(h,p)=0.0;
 }
 }
 
@@ -1233,6 +1233,7 @@ for (int k=0;k<23;k++)
 if (p1==200 and p2==k and p1!=p2)
 	{Tj=n_Ar*Kt[j];
 	jacobi(p2,k)=jacobi(p2,k)-Tj;
+	if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
 	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
 	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
 	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
@@ -1257,7 +1258,7 @@ if (p2==100 and p1==k and p1!=p2)
 if (p1==k and p1!=p2 and p2!=100 ) 
 	{Tj=n[p2]*Kt[j];
 	jacobi(p1,k)=jacobi(p1,k)-Tj;
-	if (p2!=100) {jacobi(p2,k)=jacobi(p2,k)-Tj;}
+	jacobi(p2,k)=jacobi(p2,k)-Tj;
 	if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
 	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
 	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
@@ -1337,7 +1338,7 @@ void write_density( const value_type t, const value_type Te, const state_type &n
 int main(int argc, char **argv)
 {
   
-ifstream fichier_k ("/home/cacot/Documents/c++/auto.dat");
+ifstream fichier_k ("/home/cacot/Documents/CodeAutom/autofich.dat");
 
 Tab = new double*[imax];
 Tab[0] = new double[imax*jmax];
@@ -1370,6 +1371,7 @@ else
 
  //cerr << Tab[0][jmax-1]<<endl;
 
+cerr<<Tab[0][6]<<endl;
 
 cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
                << "SiH2"<<'\t'<< "SiH3p"<<'\t'<< "SiH4"<<'\t'<< "SiH3"<<'\t'
@@ -1398,7 +1400,7 @@ cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
   state_type n_ini(Nbr_espece, 0.0); // initial conditions
   n_ini[0] = n_Arp_ini;
   n_ini[1] = n_Arp_ini;  // initial conditions
-  n_ini[2] = 0.0;
+  n_ini[2] =  0.0;
   n_ini[3] = 0.0;
   n_ini[4] = 0.0;
   n_ini[5] = n_SiH4_ini;
@@ -1407,7 +1409,7 @@ cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
   n_ini[8] = 0.0;
   n_ini[9] = 0.0;
   n_ini[10] = 0.0;
-  n_ini[11] = 0.0;
+  n_ini[11] =0.0;
   n_ini[12] = 0.0;
   n_ini[13] = 0.0;
   n_ini[14] = 0.0;
