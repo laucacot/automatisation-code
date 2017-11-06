@@ -1230,20 +1230,49 @@ for (int j=0;j<jmax;j++)
 for (int k=0;k<23;k++)
 {
 
-if (p1==200 and p2==k and p1!=p2) {Tj=n_Ar*Kt[j];}
-else if (p1!=200 and p2==k and p1!=p2) {Tj=n[p1]*Kt[j];}
-else if (p2==100 and p1==k and p1!=p2) {Tj=Kt[j];}
-else if (p1==k and p1!=p2) {Tj=n[p2]*Kt[j];}
-else if (p1==p2) {Tj=2*n[p1]*Kt[j];}
+if (p1==200 and p2==k and p1!=p2)
+	{Tj=n_Ar*Kt[j];
+	jacobi(p2,k)=jacobi(p2,k)-Tj;
+	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
+	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
+	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
+	}
+if (p1!=200 and p2==k and p1!=p2) 
+	{Tj=n[p1]*Kt[j];
+	jacobi(p1,k)=jacobi(p1,k)-Tj;
+	jacobi(p2,k)=jacobi(p2,k)-Tj;
+	if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
+	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
+	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
+	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
+	}
+if (p2==100 and p1==k and p1!=p2) 
+	{Tj=Kt[j];
+	jacobi(p1,k)=jacobi(p1,k)-Tj;
+	if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
+	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
+	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
+	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
+	}
+if (p1==k and p1!=p2 and p2!=100 ) 
+	{Tj=n[p2]*Kt[j];
+	jacobi(p1,k)=jacobi(p1,k)-Tj;
+	if (p2!=100) {jacobi(p2,k)=jacobi(p2,k)-Tj;}
+	if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
+	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
+	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
+	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
+	}
+if (p1==p2) 
+	{Tj=2*n[p1]*Kt[j];
+	if (p1!=200) {jacobi(p1,k)=jacobi(p1,k)-Tj;}
+	if (p2!=100) {jacobi(p2,k)=jacobi(p2,k)-Tj;}
+	if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
+	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
+	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
+	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
 
-if (p1!=200) {jacobi(p1,k)=jacobi(p1,k)-Tj;}
-if (p2!=100) {jacobi(p2,k)=jacobi(p2,k)-Tj;}
-if (g1!=200) {jacobi(g1,k)=jacobi(g1,k)+Tj;}
-if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
-if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
-if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
-
-
+	}
 
 }
 }
