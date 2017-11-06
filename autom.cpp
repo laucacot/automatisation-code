@@ -1315,7 +1315,7 @@ void write_density( const value_type t, const value_type Te, const state_type &n
 int main(int argc, char **argv)
 {
   
-ifstream fichier_k ("/home/cacot/Documents/c++/auto.dat");
+ifstream fichier_k ("/home/cacot/Documents/CodeAutom/autofich.dat");
 
 Tab = new double*[imax];
 Tab[0] = new double[imax*jmax];
