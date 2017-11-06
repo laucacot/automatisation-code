@@ -1198,8 +1198,19 @@ struct jacobian
     jacobi( 22 , 21 ) =0.0;
     jacobi( 22 , 22 ) =-k51(Tg)*n[16];
 
+for (int j=0;j<jmax;j++)
+{
 
+ p1=Tab[0][j];
+ p2=Tab[1][j];
+ g1=Tab[2][j];
+ g2=Tab[3][j];
+ g3=Tab[4][j];
+ g4=Tab[5][j]; 
+ Tp=(p2==0 or g3==0)?Te:Tg;
 
+ Kt[j]={Tab[6][j]*pow(Tp,Tab[7][j])*exp(-Tab[8][j]/Tp)};
+}
 
 /*for (int k=0;k<23;k++)
 {
