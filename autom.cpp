@@ -87,6 +87,7 @@ struct nsystem
       + 2.*n[12] + 2.*n[13] + 2.*n[14] + 2.*n[15] + 2.*n[16] + n[17] 
       + n[18] + n[19]; //somme de tous les atomes de si 
 
+//cerr<<dSi<<endl;
 
 for (int k=0;k<Nbr_espece;k++)
 {
@@ -128,9 +129,16 @@ if(g2!=100) {dndt[g2]=dndt[g2]+Tx;}
 if(g3!=100) {dndt[g3]=dndt[g3]+Tx;}
 if(g4!=100) {dndt[g4]=dndt[g4]+Tx;}
 
-dndt[5]=dndt[5]+C;
-
 }
+
+for (int a=0; a<Nbr_espece;a++)
+{if (a!=0 or a!=1 or a!=20) {dndt[a]=dndt[a]-C*n[a]/dSi;}
+if (a==0 or a==1 or a==4 or a==10 or a==20) {dndt[a]=dndt[a]-DA[a]*n[a];}}
+
+dndt[5]=dndt[5]+C;
+dndt[6]=dndt[6]+DA[4]*n[4];
+dndt[9]=dndt[9]+DA[10]*n[10];
+
   }
 
   value_type Te;
@@ -142,6 +150,10 @@ struct jacobian
   void operator()(const state_type &n, matrix_type &jacobi,
                   const value_type &t, state_type &dfdt ) const
   {
+ 
+value_type   dSi= n[2] + n[3] + n[4] + n[5] + n[6] + n[8] + 2.*n[11] 
+      + 2.*n[12] + 2.*n[13] + 2.*n[14] + 2.*n[15] + 2.*n[16] + n[17] 
+      + n[18] + n[19]; //somme de tous les atomes de si 
 
 for (int h=0;h<Nbr_espece;h++)
 
@@ -215,11 +227,19 @@ if (p1==p2)
 	if (g2!=100) {jacobi(g2,k)=jacobi(g2,k)+Tj;}
 	if (g3!=100) {jacobi(g3,k)=jacobi(g3,k)+Tj;}
 	if (g4!=100) {jacobi(g4,k)=jacobi(g4,k)+Tj;}
-
 	}
 
 }
+
 }
+
+for (int a=0; a<Nbr_espece;a++)
+{if (a!=0 or a!=1 or a!=20) {jacobi(a,a)=jacobi(a,a)-C/dSi;}
+if (a==0 or a==1 or a==4 or a==10 or a==20) {jacobi(a,a)=jacobi(a,a)-DA[a];}}
+
+jacobi(6,4)=jacobi(6,4)+DA[4];
+jacobi(9,10)=jacobi(9,10)+DA[10];
+
     dfdt( 0 ) = 0.0;
     dfdt( 1 ) = 0.0;
     dfdt( 2 ) = 0.0;
@@ -251,9 +271,7 @@ struct etemperature
 {
   value_type operator()(value_type const& Te)
   
-{
-
-    return 
+{   return 
 	-DP/n[0]
     +k(0,Te)*n_Ar*16.14 +k(1,Te)*n_Ar*12.31+ k(2,Te)*n[1]*5.39
     -k(3,Tg)*n[1]*n[1]*8.48
@@ -316,7 +334,7 @@ else
  //cerr << Tab[0][jmax-1]<<endl;
 
 
-
+value_type Te=0.7;
 cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
                << "SiH2"<<'\t'<< "SiH3p"<<'\t'<< "SiH4"<<'\t'<< "SiH3"<<'\t'
                <<"H"<<'\t'<< "SiH2"<<'\t'<< "H2"<<'\t'<< "H2p"<<'\t'<< "Si2H5"
@@ -325,46 +343,57 @@ cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
                << "Arp"<<'\t'<<"NP"<<endl;
 //clock_t t1,t2;
 
-  // Time variables
+
+  // Density vectors and initial condition
+  state_type n_ini(Nbr_espece, 0.0); // initial conditions
+  n_ini[0] = 1.e16;
+  n_ini[1] = 1.e16;  // initial conditions
+  n_ini[5] = n_SiH4_ini;
+  n_ini[20] =1.e16;
+  n_ini[4] = n_ini[0]-n_ini[20];
+
+state_type DL(Nbr_espece, 0.0); //vecteur de diffusion libre en m2/s
+state_type mu(Nbr_espece, 0.0); //vecteur de mobilite en m2/(V.s)
+state_type DA(Nbr_espece, 0.0); //vecteur de diffusion ambipolaire en m2/s
+
+//Coefficients de diffusion libres de Chapman-Enskog
+value_type D_mol=2.; // diametre de (molecule + argon)/2 en A
+value_type D_e=1.; // diametre de (electron+ argon)/2 en A
+
+value_type CE_e= 1.858e-3*(Tg*1.1604e4)*sqrt(Te*1.1604e4)/(pression*pow(D_e,2.))*1.e-4;//on met les temperatures en K et on convertis pour l'avoir en m2/s (*1.e-4)
+value_type CE_mol= 1.858e-3*pow((Tg*1.1604e4),3./2.)/(pression*pow(D_mol,2.))*1.e-4;//on met les temperatures en K et on convertis pour l'avoir en m2/s (*1.e-4) 
+
+ 
+/*DL[0]= CE_e*sqrt(1836.2 + 1./40.)/2.; // OMEGA = 2 et masse atomique de l'electron =1/1836.2    
+mu[0]= DL[0]/Te; //Te en eV et DL en m2/s */
+DL[0]=120./(pression*760.); //valeur de benjamin
+mu[0]= DL[0]/Te;
+
+DL[1]=0.075; //valeur de benjamin en m2/s
+	
+DL[4]= CE_mol*sqrt(1./31.+1./40.)/10.; // OMEGA = 10         
+mu[4]= DL[4]/Tg;
+
+DL[10]= CE_mol*sqrt(1./2.+1./40.)/10.; // OMEGA = 10          
+mu[10]= DL[10]/Tg;
+
+/*DL[20]= CE_mol*sqrt(2./40.)/10.; // OMEGA = 10         
+mu[20]= DL[20]/Tg;*/
+DL[20]=4.e-3/(pression*760.); //valeur de benjamin
+mu[20]= DL[20]/Tg;
+
+
+// Time variables
   value_type t = 0.0;
   value_type dt = 1.0e-8;
   value_type Tmax = 20.e-3;
   value_type NT = Tmax/dt;
 
   // Root finding variables
-  value_type min = 0.0001;
-  value_type max = 20.0;
+  value_type min = Tg;
+  value_type max = 10.0;
   boost::uintmax_t max_iter = 500;
   eps_tolerance<value_type> tol(30);
-
-  // initial values
-  value_type Te = 1.0;
-
-  // Density vectors and initial condition
-  state_type n_ini(Nbr_espece, 0.0); // initial conditions
-  n_ini[0] = 1.e16;
-  n_ini[1] = 1.e10;  // initial conditions
-  n_ini[2] =  0.0;
-  n_ini[3] = 0.0;
-  n_ini[4] = 0.0;
-  n_ini[5] = n_SiH4_ini;
-  n_ini[6] = 0.0;
-  n_ini[7] = 0.0;
-  n_ini[8] = 0.0;
-  n_ini[9] = 0.0;
-  n_ini[10] = 0.0;
-  n_ini[11] =0.0;
-  n_ini[12] = 0.0;
-  n_ini[13] = 0.0;
-  n_ini[14] = 0.0;
-  n_ini[15] = 0.0;
-  n_ini[16] = 0.0;
-  n_ini[17] = 0.0;
-  n_ini[18] = 0.0;
-  n_ini[19] = 0.0;
-  n_ini[20] =n_ini[0]-n_ini[20] ;
-
-
 
   state_type n_new(Nbr_espece, 0.0);  // first step same as initial conditions
   n_new = n_ini;
@@ -421,9 +450,18 @@ for (int j=0;j<jmax;j++)
 
   // declare stepper Rosenbrock
   stepper_type stepper;
-cerr<<"patate1"<<endl;
-  for (int i = 1; i <= NT; i++)
+
+  for (int i = 1; i <= NT+1 ; i++)
   {
+
+value_type n_mu= n_new[0]*mu[0] + n_new[4]*mu[4] + n_new[10]*mu[10] + n_new[20]*mu[20];
+value_type n_DL= -n_new[0]*DL[0] + n_new[4]*DL[4] + n_new[10]*DL[10] + n_new[20]*DL[20];
+
+DA[0]=(DL[0]+mu[0]*n_DL/n_mu)*diff; //s-1
+DA[1]=DL[1]*diff;
+DA[4]=(DL[4]-mu[4]*n_DL/n_mu)*diff;
+DA[10]=(DL[10]-mu[10]*n_DL/n_mu)*diff;
+DA[20]=(DL[20]-mu[20]*n_DL/n_mu)*diff;
     // update Te in system and jacobian
     sys.Te = Te;
     jac.Te = Te;
