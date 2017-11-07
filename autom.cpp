@@ -26,21 +26,25 @@ typedef boost::numeric::ublas::matrix< value_type > matrix_type;
 typedef rosenbrock4< value_type > stepper_type;
 
 // constants
-const value_type pressure = 13.332237; //pascal soit 0.1 torr
-const value_type Tg =0.02758 ;
-const value_type L = 3e-2; //distance netre deux plaques en m
-const value_type k_b = 1.38064852e-23; // constante de boltzman en J/K
-const value_type K = 8.6173303e-5; //constqnte de boltzman en eV/k
-const value_type D_Amet=0.005; //diffusion des Ar* en m2/s
+const value_type pression = 0.1/760; //atm soit 0.1 torr et 13 pascal 
+const value_type L = 3.e-2; //distance netre deux plaques en m
 const value_type pi = M_PI;
-const value_type diff = pow((pi/L), 2);
-const value_type DP = 1.58e25;//puissance totale du systeme
-const value_type n_Ar =  (0.1/760)*2.69e25;
-const value_type n_SiH4_ini = n_Ar/100.;
-const value_type n_Arp_ini = 1.e16;
+const value_type diff = pow((pi/L), 2.);//facteur pour la diffusion 
+const value_type n_Ar =  pression*2.69e25; //densite d'argon en m-3
+const value_type n_SiH4_ini = n_Ar/30.; //densite de SiH4 initiale
 const int Nbr_espece=21;
+const value_type DP = 1.e23;//eV/s.m3 puissance totale du systeme par unite de volume imposee
+const float C=1.e20;// m-3/s taux d'injection du SiH4 dans le réacteur
+const value_type Tg =0.02758 ; //eV soit 320 K
+const float D=1.;// m-3/s taux d'injection du SiH4 dans le réacteur
 
-const float C=1.35e21;
+
+
+//calcul des diffusions
+state_type DL(Nbr_espece, 0.0); //vecteur de diffusion libre en m2/s
+state_type mu(Nbr_espece, 0.0); //vecteur de mobilite en m2/(V.s)
+state_type DA(Nbr_espece, 0.0); //vecteur de diffusion ambipolaire en m2/s
+
 
 const int Nbr_K=47;
 int jmax=Nbr_K;
@@ -57,6 +61,8 @@ value_type k (int ind, value_type Tp) //K58 SiH3- + SiH3+ ->  Si2H4 + H2
     K= Tab[6][ind]*pow(Tp,Tab[7][ind])*exp(-Tab[8][ind]/Tp);
     return K;
 }
+
+
 struct Condition
 {
   value_type tol=1.e-9;
@@ -76,6 +82,11 @@ struct nsystem
     /*0=e, 1=Armet, 2=SiH3-, 3=SiH2-, 4=SiH3+, 5=SiH4, 6=SiH3,
     7=H, 8=SiH2, 9=H2, 10=H2+, 11=Si2H5, 12=Si2H2, 13=Si2H4-,
     14=Si2H6, 15=Si2H3-, 16=Si2H5-, 17=SiH-, 18=SiH, 19=Si, 20=Arp, 21=NP*/
+
+ value_type   dSi= n[2] + n[3] + n[4] + n[5] + n[6] + n[8] + 2.*n[11] 
+      + 2.*n[12] + 2.*n[13] + 2.*n[14] + 2.*n[15] + 2.*n[16] + n[17] 
+      + n[18] + n[19]; //somme de tous les atomes de si 
+
 
 for (int k=0;k<Nbr_espece;k++)
 {
@@ -331,8 +342,8 @@ cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
 
   // Density vectors and initial condition
   state_type n_ini(Nbr_espece, 0.0); // initial conditions
-  n_ini[0] = n_Arp_ini;
-  n_ini[1] = n_Arp_ini;  // initial conditions
+  n_ini[0] = 1.e16;
+  n_ini[1] = 1.e10;  // initial conditions
   n_ini[2] =  0.0;
   n_ini[3] = 0.0;
   n_ini[4] = 0.0;
@@ -351,7 +362,7 @@ cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
   n_ini[17] = 0.0;
   n_ini[18] = 0.0;
   n_ini[19] = 0.0;
-  n_ini[20] = n_Arp_ini;
+  n_ini[20] =n_ini[0]-n_ini[20] ;
 
 
 
@@ -436,7 +447,7 @@ cerr<<"patate1"<<endl;
     n_ini = n_new;//update
   }
 
-  value_type charge= (n_new[20]+n_new[4]+n_new[10]-n_new[0]-n_new[2]-n_new[3]-n_new[13]-n_new[15]-n_new[16]-n_new[17])/n_Arp_ini;
+  value_type charge= (n_new[20]+n_new[4]+n_new[10]-n_new[0]-n_new[2]-n_new[3]-n_new[13]-n_new[15]-n_new[16]-n_new[17])/(n_new[20]+n_new[4]+n_new[10]);
 
   cerr<<"charge/dArp="<<charge<<endl;
 
