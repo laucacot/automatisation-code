@@ -339,7 +339,7 @@ else
  //cerr << Tab[0][jmax-1]<<endl;
 
 
-value_type Te=0.7;//valeur initiale de la temperature
+value_type Te=3.;//valeur initiale de la temperature
 
 //legende
 cout <<"t"<<'\t'<<"Te"<<'\t'<<"e"<<'\t'<<"Armet"<<'\t'<< "SiH3m"<<'\t'
